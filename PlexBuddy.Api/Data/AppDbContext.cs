@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using PlexWishlist.Api.Models;
+using PlexBuddy.Shared;
 
-namespace PlexWishlist.Api.Data
+namespace PlexBuddy.Api.Data;
+
+public class AppDbContext : DbContext
 {
-    public class AppDbContext : DbContext
-    {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        public DbSet<MediaItem> Wishlist { get; set; }
-    }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public DbSet<MediaItem> WishlistItems { get; set; }
 }

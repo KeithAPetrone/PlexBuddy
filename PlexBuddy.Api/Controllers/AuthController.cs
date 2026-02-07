@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using PlexWishlist.Api.Services;
+using PlexBuddy.Api.Services;
 
-namespace PlexWishlist.Api.Controllers
+namespace PlexBuddy.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

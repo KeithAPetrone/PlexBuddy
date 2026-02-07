@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PlexWishlist.Api.Services
+namespace PlexBuddy.Api.Services
 {
     public class PlexAuthService
     {

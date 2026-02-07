@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PlexBuddy.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce864f6b7685babeb13a050a37315a9c5c97042c")]
 [assembly: System.Reflection.AssemblyProductAttribute("PlexBuddy.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PlexBuddy.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
