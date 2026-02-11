@@ -24,3 +24,6 @@ appsettings.Development.json
 # Operating System files
 Thumbs.db
 .DS_Store
+
+# Blazor/Bootstrap libraries
+**/wwwroot/lib/
