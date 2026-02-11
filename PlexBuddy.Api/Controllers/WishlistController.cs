@@ -13,17 +13,14 @@ public class WishlistController : ControllerBase
 
     public WishlistController(AppDbContext context) => _context = context;
 
-    [HttpGet("all")] // For Admin
+    [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<MediaItem>>> GetAll() 
         => await _context.WishlistItems.ToListAsync();
-
-    [HttpGet("{userId}")] // For User
-    public async Task<ActionResult<IEnumerable<MediaItem>>> GetUserList(string userId) 
-        => await _context.WishlistItems.Where(x => x.PlexUserId == userId).ToListAsync();
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MediaItem item)
     {
+        // Check if this user already requested this movie
         var exists = await _context.WishlistItems.AnyAsync(x => x.TmdbId == item.TmdbId && x.PlexUserId == item.PlexUserId);
         if (exists) return BadRequest("Already in wishlist");
 

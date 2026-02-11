@@ -6,8 +6,8 @@ namespace PlexBuddy.Api.Services;
 public class TmdbService
 {
     private readonly TMDbClient _client;
-    // Replace this with your actual key from themoviedb.org
-    private const string ApiKey = "YOUR_TMDB_API_KEY"; 
+    // Ensure you are using the "API Key", not the "API Read Access Token"
+    private const string ApiKey = "18260a4d814b6d982435be9ad19456f3";
 
     public TmdbService()
     {

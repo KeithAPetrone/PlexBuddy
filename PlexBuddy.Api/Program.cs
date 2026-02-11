@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); // <--- Required
 }
 
-app.UseCors("AllowAll");
 app.UseAuthorization();
+app.UseCors("AllowAll");
 app.MapControllers();
 app.Run();
