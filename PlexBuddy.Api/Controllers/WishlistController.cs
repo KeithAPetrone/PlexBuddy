@@ -15,17 +15,28 @@ public class WishlistController : ControllerBase
 
     [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<MediaItem>>> GetAll() 
-        => await _context.WishlistItems.ToListAsync();
+        => await _context.WishlistItems.OrderByDescending(x => x.RequestedAt).ToListAsync();
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MediaItem item)
     {
-        // Check if this user already requested this movie
-        var exists = await _context.WishlistItems.AnyAsync(x => x.TmdbId == item.TmdbId && x.PlexUserId == item.PlexUserId);
-        if (exists) return BadRequest("Already in wishlist");
+        // Prevent duplicates by TMDB ID
+        var exists = await _context.WishlistItems.AnyAsync(x => x.TmdbId == item.TmdbId);
+        if (exists) return BadRequest("Item already in wishlist.");
 
         _context.WishlistItems.Add(item);
         await _context.SaveChangesAsync();
         return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var item = await _context.WishlistItems.FindAsync(id);
+        if (item == null) return NotFound();
+
+        _context.WishlistItems.Remove(item);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }

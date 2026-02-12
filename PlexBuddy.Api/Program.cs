@@ -5,14 +5,13 @@ using PlexBuddy.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("PlexBuddy"));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // <--- Required for Swagger
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=PlexBuddy.db"));
+builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<PlexAuthService>();
-// Add this line to register your service
 builder.Services.AddScoped<TmdbService>();
 
-// Ensure you have CORS enabled so React can talk to the API
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -25,12 +24,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();   // <--- Required
-    app.UseSwaggerUI(); // <--- Required
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "PlexBuddy API v1");
+    options.RoutePrefix = "swagger"; 
+});
 
 app.UseAuthorization();
 app.UseCors("AllowAll");
