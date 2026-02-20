@@ -2,122 +2,101 @@ import React, { useState } from 'react';
 
 function App() {
     const [query, setQuery] = useState('');
-    const [movies, setMovies] = useState([]);
-    const [view, setView] = useState('search');
-    const [wishlist, setWishlist] = useState([]);
+    const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    // Logic for search
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!query) return;
+        setLoading(true); // Trigger loading state for button feedback
         try {
             const response = await fetch(`http://localhost:5000/api/Search/${query}`);
             const data = await response.json();
-            setMovies(data);
-            setView('search');
-        } catch (err) { console.error("Search failed", err); }
-    };
-
-    // Logic for loading wishlist
-    const loadWishlist = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/api/Wishlist/all');
-            const data = await response.json();
-            setWishlist(data);
-            setView('wishlist');
-        } catch (err) { console.error("Wishlist load failed", err); }
-    };
-
-    // Logic for adding to DB
-    const addToWishlist = async (movie) => {
-        const payload = {
-            Title: movie.Title || movie.title,
-            TmdbId: (movie.Id || movie.id).toString(),
-            PosterUrl: movie.PosterUrl || movie.posterUrl,
-            Year: (movie.ReleaseDate || movie.releaseDate || "").split('-')[0],
-            PlexUserId: "Admin",
-            Status: 0
-        };
-
-        try {
-            const response = await fetch('http://localhost:5000/api/Wishlist', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            if (response.ok) alert("Added to Wishlist!");
-        } catch (err) { console.error("Add failed", err); }
-    };
-
-    // Logic for removing from DB
-    const removeFromWishlist = async (id) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/Wishlist/${id}`, { method: 'DELETE' });
-            if (response.ok) setWishlist(prev => prev.filter(m => (m.Id || m.id) !== id));
-        } catch (err) { console.error("Delete failed", err); }
-    };
-
-    // Universal Poster Helper
-    const getPoster = (item) => {
-        const path = item.PosterUrl || item.posterUrl;
-        if (!path) return 'https://via.placeholder.com/500x750?text=No+Poster';
-        return path.startsWith('http') ? path : `https://image.tmdb.org/t/p/w500${path}`;
+            setResults(data);
+        } catch (err) {
+            console.error("Search failed:", err);
+        } finally {
+            setLoading(false); // Stop loading regardless of success/fail
+        }
     };
 
     return (
         <div style={styles.container}>
-            <nav style={styles.nav}>
-                <button onClick={() => setView('search')} style={{...styles.navTab, color: view === 'search' ? '#e5a00d' : '#666'}}>SEARCH</button>
-                <button onClick={loadWishlist} style={{...styles.navTab, color: view === 'wishlist' ? '#e5a00d' : '#666'}}>MY WISHLIST</button>
-            </nav>
-
             <h1 style={styles.logo}>PlexBuddy</h1>
 
-            {view === 'search' ? (
-                <>
-                    <form onSubmit={handleSearch} style={styles.searchBar}>
-                        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search for movies..." style={styles.input} />
-                        <button type="submit" style={styles.searchBtn}>Search</button>
-                    </form>
-                    <div style={styles.grid}>
-                        {movies.map(m => (
-                            <div key={m.Id || m.id} style={styles.card}>
-                                <img src={getPoster(m)} alt="poster" style={styles.poster} />
-                                <h3 style={styles.title}>{m.Title || m.title}</h3>
-                                <button onClick={() => addToWishlist(m)} style={styles.addBtn}>+ Wishlist</button>
+            <form onSubmit={handleSearch} style={styles.searchForm}>
+                <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search movies..."
+                    style={styles.input}
+                />
+                <button type="submit" style={styles.btn}>
+                    {loading ? '...' : 'Search'}
+                </button>
+            </form>
+
+            <div style={styles.grid}>
+                {results.map(item => (
+                    <div key={item.id} style={styles.card}>
+                        {/* The Badge is positioned 'absolute' relative to the card */}
+                        <span style={styles.badge}>{item.mediaType?.toUpperCase()}</span>
+
+                        {/* Poster wraps in a link. 'target="_blank"' opens IMDb in a new tab */}
+                        <a href={item.imdbUrl} target="_blank" rel="noopener noreferrer" style={styles.posterLink}>
+                            <div style={styles.posterArea}>
+                                {/* Fallback text that stays hidden behind the image unless the image fails */}
+                                <div style={styles.placeholder}>NO POSTER</div>
+                                {item.posterUrl && (
+                                    <img
+                                        src={`https://image.tmdb.org/t/p/w500${item.posterUrl}`}
+                                        alt="poster"
+                                        style={styles.img}
+                                        // If the image link is broken (404), we hide it to show the placeholder text
+                                        onError={(e) => e.target.style.display = 'none'}
+                                    />
+                                )}
                             </div>
-                        ))}
-                    </div>
-                </>
-            ) : (
-                <div style={styles.grid}>
-                    {wishlist.map(item => (
-                        <div key={item.Id || item.id} style={styles.card}>
-                            <img src={getPoster(item)} alt="poster" style={styles.poster} />
-                            <h3 style={styles.title}>{item.Title || item.title}</h3>
-                            <button onClick={() => removeFromWishlist(item.Id || item.id)} style={styles.removeBtn}>REMOVE</button>
+                        </a>
+
+                        <div style={styles.info}>
+                            <p style={styles.title}>
+                                {item.title}
+                                {/* Logic: Only render parentheses if item.year is truthy (not null/empty) */}
+                                {item.year && <span style={styles.year}> ({item.year})</span>}
+                            </p>
+                            <button style={styles.addBtn}>+ Add to Wishlist</button>
                         </div>
-                    ))}
-                </div>
-            )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
 
 const styles = {
-    container: { backgroundColor: '#111', color: '#e5a00d', minHeight: '100vh', padding: '40px', fontFamily: 'sans-serif' },
-    nav: { display: 'flex', justifyContent: 'center', gap: '40px', marginBottom: '20px' },
-    navTab: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold' },
-    logo: { textAlign: 'center', fontSize: '3rem', marginBottom: '40px' },
-    searchBar: { textAlign: 'center', marginBottom: '50px' },
-    input: { padding: '12px', width: '300px', borderRadius: '4px 0 0 4px', border: 'none', outline: 'none' },
-    searchBtn: { padding: '12px 24px', backgroundColor: '#e5a00d', color: '#000', border: 'none', borderRadius: '0 4px 4px 0', fontWeight: 'bold', cursor: 'pointer' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '30px' },
-    card: { background: '#1a1a1a', padding: '15px', borderRadius: '12px', textAlign: 'center', border: '1px solid #333' },
-    poster: { width: '100%', borderRadius: '8px', marginBottom: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.5)' },
-    title: { color: '#fff', fontSize: '1rem', margin: '10px 0', minHeight: '40px' },
-    addBtn: { width: '100%', padding: '10px', backgroundColor: '#e5a00d', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' },
-    removeBtn: { width: '100%', padding: '10px', backgroundColor: '#2a1111', color: '#ff4444', border: '1px solid #ff4444', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }
+    container: { backgroundColor: '#0a0a0a', color: '#e5a00d', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' },
+    logo: { textAlign: 'center', fontSize: '3.5rem', margin: '0 0 30px 0', fontWeight: '900', letterSpacing: '-2px' },
+    searchForm: { display: 'flex', justifyContent: 'center', marginBottom: '50px' },
+    input: { padding: '12px', width: '300px', borderRadius: '8px 0 0 8px', border: 'none', background: '#1a1a1a', color: '#fff' },
+    btn: { padding: '12px 20px', background: '#e5a00d', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' },
+
+    // Grid uses 'auto-fill' to automatically decide how many cards fit per row based on screen width
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '30px' },
+
+    // 'height' is fixed to ensure all cards align perfectly even with different title lengths
+    card: { background: '#111', borderRadius: '12px', overflow: 'hidden', border: '1px solid #222', display: 'flex', flexDirection: 'column', height: '440px', position: 'relative' },
+
+    posterArea: { height: '300px', backgroundColor: '#161616', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
+    placeholder: { color: '#333', fontWeight: 'bold', fontSize: '12px', position: 'absolute' },
+    img: { width: '100%', height: '100%', objectFit: 'cover', zIndex: 2, position: 'relative' },
+    badge: { position: 'absolute', top: '10px', left: '10px', background: '#e5a00d', color: '#000', fontSize: '10px', padding: '3px 6px', borderRadius: '4px', fontWeight: 'bold', zIndex: 5 },
+
+    // 'flexGrow: 1' makes the info section fill the remaining space in the card
+    info: { padding: '15px', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
+    title: { fontSize: '14px', color: '#fff', margin: '0', fontWeight: '600' },
+    year: { color: '#666', fontWeight: '400' },
+    addBtn: { width: '100%', padding: '10px', background: '#e5a00d', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }
 };
 
 export default App;

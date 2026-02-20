@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PlexBuddy.Api</RootNamespace>
+    <UserSecretsId>414a7fa6-79d9-401e-bded-944c0160a184</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">

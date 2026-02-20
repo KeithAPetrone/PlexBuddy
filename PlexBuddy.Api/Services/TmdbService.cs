@@ -7,7 +7,7 @@ public class TmdbService
 {
     private readonly TMDbClient _client;
     // Ensure you are using the "API Key", not the "API Read Access Token"
-    private const string ApiKey = "18260a4d814b6d982435be9ad19456f3";
+    private const string ApiKey = "";
 
     public TmdbService()
     {

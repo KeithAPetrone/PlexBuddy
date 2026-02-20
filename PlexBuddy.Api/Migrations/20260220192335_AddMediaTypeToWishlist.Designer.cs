@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlexBuddy.Api.Data;
 
@@ -10,9 +11,11 @@ using PlexBuddy.Api.Data;
 namespace PlexBuddy.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260220192335_AddMediaTypeToWishlist")]
+    partial class AddMediaTypeToWishlist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -32,6 +35,7 @@ namespace PlexBuddy.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PosterUrl")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("RequestedAt")
@@ -49,6 +53,7 @@ namespace PlexBuddy.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Year")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

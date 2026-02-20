@@ -31,6 +31,8 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = "swagger"; 
 });
 
+builder.Configuration.AddUserSecrets<Program>();
+
 app.UseAuthorization();
 app.UseCors("AllowAll");
 app.MapControllers();
